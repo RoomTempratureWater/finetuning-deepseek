@@ -1,5 +1,3 @@
-
-
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import os
@@ -14,7 +12,6 @@ bnb_config = BitsAndBytesConfig(
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=bnb_config, device_map={"":0})
-
 
 
 from peft import prepare_model_for_kbit_training
@@ -50,8 +47,6 @@ config = LoraConfig(
 model = get_peft_model(model, config)
 print_trainable_parameters(model)
 
-
-
 from datasets import load_dataset
 import json
 from datasets import Dataset
@@ -61,7 +56,7 @@ from datasets import Dataset
 # # Load the JSON file
 # Read your local JSONL file manually
 data = []
-with open('dataset.jsonl', 'r') as f:
+with open('nutrition_prompts.jsonl', 'r') as f:
     for line in f:
         line = line.strip()
         if line:  # skip empty lines
@@ -87,12 +82,13 @@ tokenized_dataset = dataset.map(preprocess, batched=False)  # reduce from 8 or 1
 
 
 
+import torch
 torch.cuda.empty_cache()
 torch.cuda.ipc_collect()
 
 import transformers
 
-# needed for gpt-neo-x tokenizer
+
 tokenizer.pad_token = tokenizer.eos_token
 
 trainer = transformers.Trainer(
